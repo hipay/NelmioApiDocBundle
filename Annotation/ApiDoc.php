@@ -20,6 +20,50 @@ class ApiDoc
 {
     const DEFAULT_VIEW = 'default';
 
+
+
+    /**
+     * Consumes
+     *
+     * @var array
+     */
+    private $consumes = array();
+
+    /**
+     * Produces
+     *
+     * @var array
+     */
+    private $produces = array();
+
+    /**
+     * @return string
+     */
+    public function getSummary()
+    {
+        return $this->summary;
+    }
+
+    /**
+     * @param string $summary
+     */
+    public function setSummary($summary)
+    {
+        $this->summary = $summary;
+    }
+
+    /**
+     * Schemes
+     *
+     * @var array
+     */
+    private $schemes = array();
+
+    /**
+     * @var string
+     */
+    private $summary;
+
     /**
      * Requirements are mandatory parameters in a route.
      *
@@ -173,8 +217,8 @@ class ApiDoc
     public function __construct(array $data)
     {
         $this->resource = !empty($data['resource']) ? $data['resource'] : false;
-
         if (isset($data['description'])) {
+
             $this->description = $data['description'];
         }
 
@@ -283,6 +327,26 @@ class ApiDoc
             $this->deprecated = $data['deprecated'];
         }
 
+        if (isset($data['consumes'])) {
+            $this->consumes = $data['consumes'];
+        }
+
+        if (isset($data['produces'])) {
+            $this->produces = $data['produces'];
+        }
+
+        if (isset($data['produces'])) {
+            $this->produces = $data['produces'];
+        }
+
+        if (isset($data['schemes'])) {
+            $this->schemes = $data['schemes'];
+        }
+
+        if (isset($data['summary'])) {
+            $this->summary = $data['summary'];
+        }
+
         if (isset($data['tags'])) {
             if (is_array($data['tags'])) {
                 foreach ($data['tags'] as $tag => $colorCode) {
@@ -354,6 +418,7 @@ class ApiDoc
      */
     public function setRequirements(array $requirements)
     {
+
         $this->requirements = array_merge($this->requirements, $requirements);
     }
 
@@ -789,5 +854,52 @@ class ApiDoc
         if ($statusCode == 200 && $this->response !== $model) {
             $this->response = $model;
         }
+    }
+    /**
+     * @return array
+     */
+    public function getConsumes()
+    {
+        return $this->consumes;
+    }
+
+    /**
+     * @param array $consumes
+     */
+    public function setConsumes($consumes)
+    {
+        $this->consumes = $consumes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProduces()
+    {
+        return $this->produces;
+    }
+
+    /**
+     * @param array $produces
+     */
+    public function setProduces($produces)
+    {
+        $this->produces = $produces;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSchemes()
+    {
+        return $this->schemes;
+    }
+
+    /**
+     * @param array $schemes
+     */
+    public function setSchemes($schemes)
+    {
+        $this->schemes = $schemes;
     }
 }

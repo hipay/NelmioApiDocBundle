@@ -142,6 +142,9 @@ class SwaggerFormatter implements FormatterInterface
         $config = $this->authConfig;
 
         if ($config['delivery'] === 'http') {
+            unset($config['custom_endpoint']);
+            $config['type'] = 'basic';
+            $auth[$config['name']][] = $config;
             return $auth;
         }
 
@@ -188,6 +191,7 @@ class SwaggerFormatter implements FormatterInterface
             'swaggerVersion' => (string) $this->swaggerVersion,
             'apiVersion' => (string) $this->apiVersion,
             'basePath' => $this->basePath,
+            'info' => $this->getInfo(),
             'resourcePath' => $resource,
             'apis' => array(),
             'models' => array(),
@@ -234,7 +238,7 @@ class SwaggerFormatter implements FormatterInterface
 
             $parameters = array();
             $responseMessages = array();
-
+            $data = $apiDoc->toArray();
             foreach ($compiled->getPathVariables() as $paramValue) {
                 $parameter = array(
                     'paramType' => 'path',
@@ -243,6 +247,10 @@ class SwaggerFormatter implements FormatterInterface
                     'required' => true,
                 );
 
+                if (isset($data['requirements']) && isset($data['requirements'][$paramValue])) {
+                    $parameter['description'] = $data['requirements'][$paramValue]['description'];
+                }
+
                 if ($paramValue === '_format' && false != ($req = $route->getRequirement('_format'))) {
                     $parameter['enum'] = explode('|', $req);
                 }
@@ -250,11 +258,11 @@ class SwaggerFormatter implements FormatterInterface
                 $parameters[] = $parameter;
             }
 
-            $data = $apiDoc->toArray();
-
             if (isset($data['filters'])) {
                 $parameters = array_merge($parameters, $this->deriveQueryParameters($data['filters']));
             }
+
+
 
             if (isset($data['parameters'])) {
                 $parameters = array_merge($parameters, $this->deriveParameters($data['parameters'], $input['paramType']));
@@ -330,11 +338,27 @@ class SwaggerFormatter implements FormatterInterface
             foreach ($apiDoc->getRoute()->getMethods() as $method) {
                 $operation = array(
                     'method' => $method,
-                    'summary' => $apiDoc->getDescription(),
+                    'produces' => $apiDoc->getProduces(),
+                    'description' => $apiDoc->getDescription(),
                     'nickname' => $this->generateNickname($method, $itemResource),
                     'parameters' => $parameters,
                     'responseMessages' => array_values($responseMessages),
                 );
+                $schemes= $apiDoc->getSchemes();
+                $summary=  $apiDoc->getSummary();
+                $consumes= $apiDoc->getConsumes();
+
+                if (isset($schemes)) {
+                    $operation['schemes'] = $apiDoc->getSchemes();
+                }
+
+                if ($summary) {
+                    $operation['summary'] = $summary;
+                }
+
+                if (isset($consumes)) {
+                    $operation['consumes'] = $consumes;
+                }
 
                 if ($type !== null) {
                     $operation['type'] = $type;
