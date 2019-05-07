@@ -143,8 +143,10 @@ class SwaggerFormatter implements FormatterInterface
 
         if ($config['delivery'] === 'http') {
             unset($config['custom_endpoint']);
+            unset($config['delivery']);
             $config['type'] = 'basic';
-            $auth[$config['name']][] = $config;
+            $auth[$config['name']] = $config;
+            unset($auth[$config['name']]['name']);
             return $auth;
         }
 
