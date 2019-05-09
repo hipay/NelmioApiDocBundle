@@ -36,6 +36,7 @@ class SwaggerConfigCompilerPass implements CompilerPassInterface
         $formatter->addMethodCall('setBasePath', array($container->getParameter('nelmio_api_doc.swagger.base_path')));
         $formatter->addMethodCall('setApiVersion', array($container->getParameter('nelmio_api_doc.swagger.api_version')));
         $formatter->addMethodCall('setSwaggerVersion', array($container->getParameter('nelmio_api_doc.swagger.swagger_version')));
+        $formatter->addMethodCall('setTags', array($container->getParameter('nelmio_api_doc.swagger.tags')));
         $formatter->addMethodCall('setInfo', array($container->getParameter('nelmio_api_doc.swagger.info')));
 
         $authentication = $container->getParameter('nelmio_api_doc.sandbox.authentication');

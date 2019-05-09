@@ -32,6 +32,8 @@ class SwaggerFormatter implements FormatterInterface
 
     protected $swaggerVersion;
 
+    protected $tags;
+
     protected $info = array();
 
     protected $typeMap = array(
@@ -188,11 +190,11 @@ class SwaggerFormatter implements FormatterInterface
      */
     protected function produceApiDeclaration(array $collection, $resource)
     {
-
         $apiDeclaration = array(
             'swaggerVersion' => (string) $this->swaggerVersion,
             'apiVersion' => (string) $this->apiVersion,
             'basePath' => $this->basePath,
+            'tags' => $this->tags,
             'info' => $this->getInfo(),
             'resourcePath' => $resource,
             'apis' => array(),
@@ -591,6 +593,14 @@ class SwaggerFormatter implements FormatterInterface
     public function setApiVersion($apiVersion)
     {
         $this->apiVersion = $apiVersion;
+    }
+
+    /**
+     * @param array $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
     }
 
     /**
