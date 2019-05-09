@@ -340,6 +340,7 @@ class SwaggerFormatter implements FormatterInterface
             foreach ($apiDoc->getRoute()->getMethods() as $method) {
                 $operation = array(
                     'method' => $method,
+                    'tags' => $apiDoc->getTags(),
                     'produces' => $apiDoc->getProduces(),
                     'description' => $apiDoc->getDescription(),
                     'nickname' => $this->generateNickname($method, $itemResource),
