@@ -305,6 +305,7 @@ class SwaggerFormatter implements FormatterInterface
                                     'readonly'    => true,
                                     'description' => null,
                                     'default'     => null,
+                                    'example'     => null,
                                     'children'    => $prop['model'][$alias]['children'],
                                 )
                             ),
@@ -543,7 +544,16 @@ class SwaggerFormatter implements FormatterInterface
             }
 
             if (isset($prop['description'])) {
-                $parameter['description'] = $prop['description'];
+                $parameter['description'] = preg_replace("/(\n)\n/", '${1}', $prop['description']);
+            }
+
+            if (isset($prop['example'])) {
+                $parameter['example'] = $prop['example'];
+            }
+
+            foreach($prop as $prop_name => $prop_val) {
+                if(preg_match("/^x-\w+/", $prop_name))
+                    $parameter[$prop_name] = $prop_val;
             }
 
             $parameters[] = $parameter;
