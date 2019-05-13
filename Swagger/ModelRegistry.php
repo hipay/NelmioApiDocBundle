@@ -193,6 +193,12 @@ class ModelRegistry
                         $required[] = $name;
                     }
 
+                    if (isset($prop['extras']) && is_array($prop['extras'])) {
+                        foreach($prop['extras'] as $propName => $propValue) {
+                            $subParam[$propName] = $propValue;
+                        }
+                    }
+
                 }
 
                 $properties[$name] = $subParam;
