@@ -494,13 +494,16 @@ class SwaggerFormatter implements FormatterInterface
                         } else {
                             $ref =
                                 $this->registerModel(
-                                    $prop['subType'],
+                                    isset($prop['children_type']) ? $prop['children_type'] : $prop['subType'],
                                     isset($prop['children']) ? $prop['children'] : null,
                                     $prop['description'] ?: $prop['dataType']
                                 );
                             $items = array(
                                 '$ref' => $ref,
+                                'type' => $ref
                             );
+                            if (isset($prop['format']))
+                                $items['enum'] = array_keys(json_decode($prop['format'], true));
                         }
                         break;
                 }
@@ -526,7 +529,6 @@ class SwaggerFormatter implements FormatterInterface
 
             if (null !== $ref) {
                 $parameter['$ref'] = $ref;
-                $parameter['type'] = $ref;
             }
 
             if (null !== $format) {
