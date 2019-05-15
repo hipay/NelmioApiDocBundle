@@ -139,7 +139,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('model_naming_strategy')->defaultValue('dot_notation')->end()
-                        ->scalarNode('api_base_path')->defaultValue('/api')->end()
+                        ->scalarNode('api_base_path')->defaultNull()->end()
                         ->scalarNode('swagger_version')->defaultValue('1.2')->end()
                         ->scalarNode('api_version')->defaultValue('0.1')->end()
                         ->scalarNode('prefix_path')->defaultNull()->end()
