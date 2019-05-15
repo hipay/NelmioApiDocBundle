@@ -142,6 +142,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('api_base_path')->defaultValue('/api')->end()
                         ->scalarNode('swagger_version')->defaultValue('1.2')->end()
                         ->scalarNode('api_version')->defaultValue('0.1')->end()
+                        ->scalarNode('prefix_path')->defaultNull()->end()
                         ->arrayNode('info')
                             ->addDefaultsIfNotSet()
                                 ->children()
