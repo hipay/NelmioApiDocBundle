@@ -142,6 +142,11 @@ class ApiDoc
     /**
      * @var string
      */
+    private $prefixPath = null;
+
+    /**
+     * @var string
+     */
     private $method;
 
     /**
@@ -321,6 +326,10 @@ class ApiDoc
 
         if (isset($data['section'])) {
             $this->section = $data['section'];
+        }
+
+        if (isset($data['prefixPath'])) {
+            $this->prefixPath = $data['prefixPath'];
         }
 
         if (isset($data['deprecated'])) {
@@ -520,6 +529,20 @@ class ApiDoc
     public function getResource()
     {
         return $this->resource && is_string($this->resource) ? $this->resource : false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefixPath() {
+        return $this->prefixPath;
+    }
+
+    /**
+     * @param string $prefixPath
+     */
+    public function setPrefixPath($prefixPath) {
+        $this->prefixPath = $prefixPath;
     }
 
     /**
@@ -804,6 +827,10 @@ class ApiDoc
 
         if ($tags = $this->tags) {
             $data['tags'] = $tags;
+        }
+
+        if ($prefixPath = $this->prefixPath) {
+            $data['prefixPath'] = $prefixPath;
         }
 
         if ($resourceDescription = $this->resourceDescription) {

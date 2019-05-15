@@ -234,7 +234,7 @@ class SwaggerFormatter implements FormatterInterface
 
             $compiled = $route->compile();
 
-            $path = $this->stripBasePath($route->getPath());
+            $path = $this->stripBasePath(($apiDoc->getPrefixPath() != null ? $apiDoc->getPrefixPath() : '').$route->getPath());
 
             if (!isset($apiBag[$path])) {
                 $apiBag[$path] = array();
