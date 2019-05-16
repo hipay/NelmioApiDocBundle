@@ -310,6 +310,7 @@ class SwaggerFormatter implements FormatterInterface
                                     'description' => null,
                                     'default'     => null,
                                     'example'     => null,
+                                    'explode'     => false,
                                     'children'    => $prop['model'][$alias]['children'],
                                 )
                             ),
@@ -555,6 +556,10 @@ class SwaggerFormatter implements FormatterInterface
 
             if (isset($prop['example'])) {
                 $parameter['example'] = $prop['example'];
+            }
+
+            if (isset($prop['explode'])) {
+                $parameter['explode'] = $prop['explode'];
             }
 
             foreach($prop as $prop_name => $prop_val) {
