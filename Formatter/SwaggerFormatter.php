@@ -34,8 +34,6 @@ class SwaggerFormatter implements FormatterInterface
 
     protected $tags;
 
-    protected $prefixPath;
-
     protected $info = array();
 
     protected $typeMap = array(
@@ -236,7 +234,7 @@ class SwaggerFormatter implements FormatterInterface
 
             $compiled = $route->compile();
 
-            $path = $this->stripBasePath(($this->prefixPath != null ? $this->prefixPath : '').$route->getPath());
+            $path = $this->stripBasePath($route->getPath());
 
             if (!isset($apiBag[$path])) {
                 $apiBag[$path] = array();
@@ -602,14 +600,6 @@ class SwaggerFormatter implements FormatterInterface
     public function setApiVersion($apiVersion)
     {
         $this->apiVersion = $apiVersion;
-    }
-
-    /**
-     * @param mixed $prefixPath
-     */
-    public function setPrefixPath($prefixPath)
-    {
-        $this->prefixPath = $prefixPath;
     }
 
     /**
