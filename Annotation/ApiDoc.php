@@ -349,8 +349,12 @@ class ApiDoc
 
         if (isset($data['tags'])) {
             if (is_array($data['tags'])) {
-                foreach ($data['tags'] as $index => $tagName) {
-                    $this->addTag($index, $tagName);
+                foreach ($data['tags'] as $tag => $colorCode) {
+                    if (is_numeric($tag)) {
+                        $this->addTag($colorCode);
+                    } else {
+                        $this->addTag($tag, $colorCode);
+                    }
                 }
             } else {
                 $this->tags[] = $data['tags'];
@@ -392,12 +396,12 @@ class ApiDoc
     }
 
     /**
-     * @param int $index
-     * @param string $tagName
+     * @param string $tag
+     * @param string $colorCode
      */
-    public function addTag($index, $tagName)
+    public function addTag($tag, $colorCode = '#d9534f')
     {
-        $this->tags[$index] = $tagName;
+        $this->tags[$tag] = $colorCode;
     }
 
     /**
@@ -725,7 +729,11 @@ class ApiDoc
      * @return array
      */
     public function getTags() {
-        return $this->tags;
+        $arr = array();
+        foreach($this->tags as $tag => $colorCode) {
+            array_push($arr, $tag);
+        }
+        return $arr;
     }
 
     /**
