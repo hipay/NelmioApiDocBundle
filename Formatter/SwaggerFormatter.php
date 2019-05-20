@@ -285,7 +285,8 @@ class SwaggerFormatter implements FormatterInterface
                 }
 
                 $className = !empty($prop['type']['form_errors']) ? $prop['type']['class'] . '.ErrorResponse' : $prop['type']['class'];
-
+                $descriptionModel = !empty($prop['type']['description']) ? $prop['type']['description'] : '';
+                
                 if (isset($prop['type']['collection']) && $prop['type']['collection'] === true) {
 
                     /*
@@ -312,7 +313,7 @@ class SwaggerFormatter implements FormatterInterface
                                     'children'    => $prop['model'][$alias]['children'],
                                 )
                             ),
-                            ''
+                            $descriptionModel
                         );
                     $responseModel = array(
                         'code' => $statusCode,
@@ -320,11 +321,10 @@ class SwaggerFormatter implements FormatterInterface
                         'responseModel' => $collId
                     );
                 } else {
-
                     $responseModel = array(
                         'code' => $statusCode,
                         'message' => $message,
-                        'responseModel' => $this->registerModel($className, $prop['model'], ''),
+                        'responseModel' => $this->registerModel($className, $prop['model'], $descriptionModel),
                     );
                 }
                 $responseMessages[$statusCode] = $responseModel;

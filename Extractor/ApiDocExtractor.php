@@ -409,6 +409,7 @@ class ApiDocExtractor
             'class'   => '',
             'groups'  => array(),
             'options'  => array(),
+            'description' => ''
         );
 
         // normalize strings
@@ -432,6 +433,10 @@ class ApiDocExtractor
                     $input['class']
                 )
             );
+        }
+
+        if(class_exists($input['class'])) {
+            $input['description'] = $this->commentExtractor->getDocCommentTextFromClass(new \ReflectionClass($input['class']));
         }
 
         // normalize groups

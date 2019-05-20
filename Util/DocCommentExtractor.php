@@ -43,6 +43,19 @@ class DocCommentExtractor
         return trim($comment);
     }
 
+    /**
+     * @param  \Reflector $reflected
+     * @return string
+     */
+    public function getDocCommentTextFromClass(\Reflector $reflected) {
+        $comment = $this->getDocCommentText($reflected);
+
+        $classPath = explode('\\', $reflected->name);
+        $comment = preg_replace('/^Class '.end($classPath).'(.*)?([\n|\r])?/m', '', $comment);
+
+        return trim($comment);
+    }
+
     private function getExtrasProperties($props, $is_custom = false) {
         $extract = array();
         $arr = array_filter(preg_split("/,[\n|\r]/", $props), function($e) {
