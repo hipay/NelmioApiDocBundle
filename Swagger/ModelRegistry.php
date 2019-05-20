@@ -82,9 +82,11 @@ class ModelRegistry
         }
 
         $this->classes[$className][] = $id;
+        $shortClassName = explode('\\', $className);
 
         $model = array(
             'id' => $id,
+            'title' => end($shortClassName),
             'description' => $description,
         );
 
