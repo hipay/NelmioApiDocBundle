@@ -87,7 +87,7 @@ class ModelRegistry
         $model = array(
             'id' => $id,
             'title' => end($shortClassName),
-            'description' => $description,
+            'description' => $description == null ? end($shortClassName)." model" : $description,
         );
 
         if (is_array($parameters)) {
