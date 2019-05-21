@@ -294,7 +294,7 @@ class SwaggerFormatter implements FormatterInterface
                      * With alias:          Fully\Qualified\Class\Name[alias]
                      */
                     $alias = $prop['type']['collectionName'];
-                    
+
                     $newName = sprintf('%s[%s]', $className, $alias);
                     $collId =
                         $this->registerModel(
