@@ -149,6 +149,7 @@ class JmsMetadataParser implements ParserInterface, PostParserInterface
                         'readonly'     => $item->readOnly,
                         'sinceVersion' => $item->sinceVersion,
                         'untilVersion' => $item->untilVersion,
+                        'extras'      => $this->getExtras($item)
                     );
 
                     if (!is_null($dataType['class']) && false === $dataType['primitive']) {
@@ -320,6 +321,17 @@ class JmsMetadataParser implements ParserInterface, PostParserInterface
             $extracted = $this->commentExtractor->getDocCommentText($ref->getMethod($item->getter));
         } else {
             $extracted = $this->commentExtractor->getDocCommentText($ref->getProperty($item->name));
+        }
+
+        return $extracted;
+    }
+
+    protected function getExtras(PropertyMetadata $item) {
+        $ref = new \ReflectionClass($item->class);
+        if ($item instanceof VirtualPropertyMetadata) {
+            $extracted = $this->commentExtractor->getDocCommentExtras($ref->getMethod($item->getter));
+        } else {
+            $extracted = $this->commentExtractor->getDocCommentExtras($ref->getProperty($item->name));
         }
 
         return $extracted;

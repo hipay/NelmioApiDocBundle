@@ -43,4 +43,69 @@ class DocCommentExtractor
         return trim($comment);
     }
 
+    /**
+     * @param  \Reflector $reflected
+     * @return string
+     */
+    public function getDocCommentTextFromClass(\Reflector $reflected) {
+        $comment = $this->getDocCommentText($reflected);
+
+        $classPath = explode('\\', $reflected->name);
+        $comment = preg_replace('/^Class '.end($classPath).'(.*)?([\n|\r])?/m', '', $comment);
+
+        return trim($comment);
+    }
+
+    private function getExtrasProperties($props, $is_custom = false) {
+        $extract = array();
+        $arr = array_filter(preg_split("/,[\n|\r]/", $props), function($e) {
+            return preg_match("/\w+/", $e);
+        });
+
+        if($is_custom) {
+            foreach($arr as $el) {
+                $info = explode('=', $el);
+                $extract["x-".str_replace('"', '', trim($info[0]))] = trim(preg_replace('/"/', '', $info[1]));
+            }
+        }
+        else {
+            foreach($arr as $el) {
+                $info = explode('=', $el);
+                $extract[trim($info[0])] = trim(preg_replace('/"/', '', $info[1]));
+            }
+        }
+
+        return $extract;
+    }
+
+    /**
+     * @param \Reflector $reflected
+     * @return string
+     */
+    public function getDocCommentExtras(\Reflector $reflected) {
+        $comment = $reflected->getDocComment();
+        preg_match("/[\t| ]*ApiDoc\((.*(?!\)))[\t| ]*\)/s", $comment, $docApi);
+        
+        if($docApi != null) {
+            $extract = array();
+            $apiDocProps = array();
+            $props = str_replace('*', '', $docApi[1]);
+
+            preg_match("/[\t| ]*x=\{(.*)[\t| ]*\}/s", $props, $customProp);
+            if($customProp != null) {
+                $props = str_replace($customProp[0], '', $props);
+                $extract = $this->getExtrasProperties($customProp[1], true);
+            }
+            $props = str_replace('*', '', $props);
+
+            $extract = array_merge($extract, $this->getExtrasProperties($props));
+
+            ksort($extract);
+        }
+        else
+            $extract = null;
+
+        return $extract;
+    }
+
 }

@@ -399,7 +399,7 @@ class ApiDoc
      * @param string $tag
      * @param string $colorCode
      */
-    public function addTag($tag, $colorCode = '#d9534f')
+    public function addTag($tag, $colorCode = '#444444')
     {
         $this->tags[$tag] = $colorCode;
     }
@@ -723,6 +723,17 @@ class ApiDoc
         $this->deprecated = (bool) $deprecated;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTags() {
+        $arr = array();
+        foreach($this->tags as $tag => $colorCode) {
+            array_push($arr, $tag);
+        }
+        return $arr;
     }
 
     /**

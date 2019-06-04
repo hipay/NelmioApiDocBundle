@@ -82,10 +82,12 @@ class ModelRegistry
         }
 
         $this->classes[$className][] = $id;
+        $shortClassName = explode('\\', $className);
 
         $model = array(
             'id' => $id,
-            'description' => $description,
+            'title' => end($shortClassName),
+            'description' => $description == null ? end($shortClassName)." model" : $description,
         );
 
         if (is_array($parameters)) {
@@ -191,6 +193,12 @@ class ModelRegistry
 
                     if ($prop['required']) {
                         $required[] = $name;
+                    }
+
+                    if (isset($prop['extras']) && is_array($prop['extras'])) {
+                        foreach($prop['extras'] as $propName => $propValue) {
+                            $subParam[$propName] = $propValue;
+                        }
                     }
 
                 }

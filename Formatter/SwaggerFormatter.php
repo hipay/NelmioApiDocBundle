@@ -32,6 +32,8 @@ class SwaggerFormatter implements FormatterInterface
 
     protected $swaggerVersion;
 
+    protected $tags;
+
     protected $info = array();
 
     protected $typeMap = array(
@@ -143,8 +145,10 @@ class SwaggerFormatter implements FormatterInterface
 
         if ($config['delivery'] === 'http') {
             unset($config['custom_endpoint']);
+            unset($config['delivery']);
             $config['type'] = 'basic';
-            $auth[$config['name']][] = $config;
+            $auth[$config['name']] = $config;
+            unset($auth[$config['name']]['name']);
             return $auth;
         }
 
@@ -186,11 +190,11 @@ class SwaggerFormatter implements FormatterInterface
      */
     protected function produceApiDeclaration(array $collection, $resource)
     {
-
         $apiDeclaration = array(
             'swaggerVersion' => (string) $this->swaggerVersion,
             'apiVersion' => (string) $this->apiVersion,
             'basePath' => $this->basePath,
+            'tags' => $this->tags,
             'info' => $this->getInfo(),
             'resourcePath' => $resource,
             'apis' => array(),
@@ -281,7 +285,8 @@ class SwaggerFormatter implements FormatterInterface
                 }
 
                 $className = !empty($prop['type']['form_errors']) ? $prop['type']['class'] . '.ErrorResponse' : $prop['type']['class'];
-
+                $descriptionModel = !empty($prop['type']['description']) ? $prop['type']['description'] : '';
+                
                 if (isset($prop['type']['collection']) && $prop['type']['collection'] === true) {
 
                     /*
@@ -297,16 +302,18 @@ class SwaggerFormatter implements FormatterInterface
                             array(
                                 $alias => array(
                                     'dataType'    => null,
-                                    'subType'     => $className,
+                                    'subType'     => $alias,
                                     'actualType'  => DataTypes::COLLECTION,
                                     'required'    => true,
                                     'readonly'    => true,
                                     'description' => null,
                                     'default'     => null,
+                                    'example'     => null,
+                                    'explode'     => false,
                                     'children'    => $prop['model'][$alias]['children'],
                                 )
                             ),
-                            ''
+                            $descriptionModel
                         );
                     $responseModel = array(
                         'code' => $statusCode,
@@ -314,11 +321,10 @@ class SwaggerFormatter implements FormatterInterface
                         'responseModel' => $collId
                     );
                 } else {
-
                     $responseModel = array(
                         'code' => $statusCode,
                         'message' => $message,
-                        'responseModel' => $this->registerModel($className, $prop['model'], ''),
+                        'responseModel' => $this->registerModel($className, $prop['model'], $descriptionModel),
                     );
                 }
                 $responseMessages[$statusCode] = $responseModel;
@@ -338,6 +344,7 @@ class SwaggerFormatter implements FormatterInterface
             foreach ($apiDoc->getRoute()->getMethods() as $method) {
                 $operation = array(
                     'method' => $method,
+                    'tags' => $apiDoc->getTags(),
                     'produces' => $apiDoc->getProduces(),
                     'description' => $apiDoc->getDescription(),
                     'nickname' => $this->generateNickname($method, $itemResource),
@@ -488,13 +495,16 @@ class SwaggerFormatter implements FormatterInterface
                         } else {
                             $ref =
                                 $this->registerModel(
-                                    $prop['subType'],
+                                    isset($prop['children_type']) ? $prop['children_type'] : $prop['subType'],
                                     isset($prop['children']) ? $prop['children'] : null,
                                     $prop['description'] ?: $prop['dataType']
                                 );
                             $items = array(
                                 '$ref' => $ref,
+                                'type' => $ref
                             );
+                            if (isset($prop['format']))
+                                $items['enum'] = array_keys(json_decode($prop['format'], true));
                         }
                         break;
                 }
@@ -520,7 +530,6 @@ class SwaggerFormatter implements FormatterInterface
 
             if (null !== $ref) {
                 $parameter['$ref'] = $ref;
-                $parameter['type'] = $ref;
             }
 
             if (null !== $format) {
@@ -540,7 +549,20 @@ class SwaggerFormatter implements FormatterInterface
             }
 
             if (isset($prop['description'])) {
-                $parameter['description'] = $prop['description'];
+                $parameter['description'] = preg_replace("/(\n)\n/", '${1}', $prop['description']);
+            }
+
+            if (isset($prop['example'])) {
+                $parameter['example'] = $prop['example'];
+            }
+
+            if (isset($prop['explode'])) {
+                $parameter['explode'] = $prop['explode'];
+            }
+
+            foreach($prop as $prop_name => $prop_val) {
+                if(preg_match("/^x-\w+/", $prop_name))
+                    $parameter[$prop_name] = $prop_val;
             }
 
             $parameters[] = $parameter;
@@ -578,6 +600,14 @@ class SwaggerFormatter implements FormatterInterface
     public function setApiVersion($apiVersion)
     {
         $this->apiVersion = $apiVersion;
+    }
+
+    /**
+     * @param array $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
     }
 
     /**
