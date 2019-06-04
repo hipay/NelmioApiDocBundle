@@ -45,7 +45,7 @@ class ObjectModelDescriber implements ModelDescriberInterface, ModelRegistryAwar
         $class = $model->getType()->getClassName();
         $context = [];
         if (null !== $model->getGroups()) {
-            $context = ['serializer_groups' => $model->getGroups()];
+            $context = ['serializer_groups' => array_filter($model->getGroups(), 'is_string')];
         }
 
         $annotationsReader = new AnnotationsReader($this->doctrineReader, $this->modelRegistry);
@@ -79,17 +79,17 @@ class ObjectModelDescriber implements ModelDescriberInterface, ModelRegistryAwar
 
             $types = $this->propertyInfo->getTypes($class, $propertyName);
             if (null === $types || 0 === count($types)) {
-                throw new \LogicException(sprintf('The PropertyInfo component was not able to guess the type of %s::$%s', $class, $propertyName));
+                throw new \LogicException(sprintf('The PropertyInfo component was not able to guess the type of %s::$%s. You may need to add a `@var` annotation or use `@SWG\Property(type="")` to make its type explicit.', $class, $propertyName));
             }
             if (count($types) > 1) {
-                throw new \LogicException(sprintf('Property %s::$%s defines more than one type.', $class, $propertyName));
+                throw new \LogicException(sprintf('Property %s::$%s defines more than one type. You can specify the one that should be documented using `@SWG\Property(type="")`.', $class, $propertyName));
             }
 
             $type = $types[0];
             if ($type->isCollection()) {
                 $type = $type->getCollectionValueType();
                 if (null === $type) {
-                    throw new \LogicException(sprintf('Property "%s:%s" is an array, but no indication of the array elements are made. Use e.g. string[] for an array of string.', $class, $propertyName));
+                    throw new \LogicException(sprintf('Property "%s:%s" is an array, but its items type isn\'t specified. You can specify that by using the type `string[]` for instance or `@SWG\Property(type="array", @SWG\Items(type="string"))`.', $class, $propertyName));
                 }
 
                 $property->setType('array');
@@ -106,7 +106,7 @@ class ObjectModelDescriber implements ModelDescriberInterface, ModelRegistryAwar
                 $property->setType('number');
                 $property->setFormat('float');
             } elseif (Type::BUILTIN_TYPE_OBJECT === $type->getBuiltinType()) {
-                if (is_subclass_of($type->getClassName(), \DateTimeInterface::class)) {
+                if (is_a($type->getClassName(), \DateTimeInterface::class, true)) {
                     $property->setType('string');
                     $property->setFormat('date-time');
                 } else {
@@ -117,13 +117,13 @@ class ObjectModelDescriber implements ModelDescriberInterface, ModelRegistryAwar
                     );
                 }
             } else {
-                throw new \Exception(sprintf('Unknown type: %s', $type->getBuiltinType()));
+                throw new \Exception(sprintf('Type "%s" is not supported in %s::$%s. You may use the `@SWG\Property(type="")` annotation to specify it manually.', $type->getBuiltinType(), $class, $propertyName));
             }
         }
     }
 
     public function supports(Model $model): bool
     {
-        return Type::BUILTIN_TYPE_OBJECT === $model->getType()->getBuiltinType();
+        return Type::BUILTIN_TYPE_OBJECT === $model->getType()->getBuiltinType() && class_exists($model->getType()->getClassName());
     }
 }

@@ -67,12 +67,40 @@ class SymfonyConstraints
     /**
      * @var int
      *
+     * @Assert\Choice(callback="fetchAllowedChoices")
+     */
+    private $propertyChoiceWithCallbackWithoutClass;
+
+    /**
+     * @var int
+     *
      * @Assert\Expression(
      *     "this.getCategory() in ['php', 'symfony'] or !this.isTechnicalPost()",
      *     message="If this is a tech post, the category should be either php or symfony!"
      * )
      */
     private $propertyExpression;
+
+    /**
+     * @var int
+     *
+     * @Assert\Range(min=1, max=5)
+     */
+    private $propertyRange;
+
+    /**
+     * @var int
+     *
+     * @Assert\LessThan(42)
+     */
+    private $propertyLessThan;
+
+    /**
+     * @var int
+     *
+     * @Assert\LessThanOrEqual(23)
+     */
+    private $propertyLessThanOrEqual;
 
     /**
      * @param int $propertyNotBlank
@@ -131,11 +159,43 @@ class SymfonyConstraints
     }
 
     /**
+     * @param int $propertyChoiceWithCallbackWithoutClass
+     */
+    public function setPropertyChoiceWithCallbackWithoutClass(int $propertyChoiceWithCallbackWithoutClass): void
+    {
+        $this->propertyChoiceWithCallbackWithoutClass = $propertyChoiceWithCallbackWithoutClass;
+    }
+
+    /**
      * @param int $propertyExpression
      */
     public function setPropertyExpression(int $propertyExpression): void
     {
         $this->propertyExpression = $propertyExpression;
+    }
+
+    /**
+     * @param int $propertyRange
+     */
+    public function setPropertyRange(int $propertyRange): void
+    {
+        $this->propertyRange = $propertyRange;
+    }
+
+    /**
+     * @param int $propertyLessThan
+     */
+    public function setPropertyLessThan(int $propertyLessThan): void
+    {
+        $this->propertyLessThan = $propertyLessThan;
+    }
+
+    /**
+     * @param int $propertyLessThanOrEqual
+     */
+    public function setPropertyLessThanOrEqual(int $propertyLessThanOrEqual): void
+    {
+        $this->propertyLessThanOrEqual = $propertyLessThanOrEqual;
     }
 
     /**

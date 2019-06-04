@@ -63,15 +63,20 @@ class SymfonyConstraintAnnotationReader
                 $property->setMaxLength($annotation->max);
             } elseif ($annotation instanceof Assert\Regex) {
                 $this->appendPattern($property, $annotation->getHtmlPattern());
-            } elseif ($annotation instanceof Assert\DateTime) {
-                $this->appendPattern($property, $annotation->format);
             } elseif ($annotation instanceof Assert\Count) {
                 $property->setMinItems($annotation->min);
                 $property->setMaxItems($annotation->max);
             } elseif ($annotation instanceof Assert\Choice) {
-                $property->setEnum($annotation->callback ? call_user_func($annotation->callback) : $annotation->choices);
+                $property->setEnum($annotation->callback ? call_user_func(is_array($annotation->callback) ? $annotation->callback : [$reflectionProperty->class, $annotation->callback]) : $annotation->choices);
             } elseif ($annotation instanceof Assert\Expression) {
                 $this->appendPattern($property, $annotation->message);
+            } elseif ($annotation instanceof Assert\Range) {
+                $property->setMinimum($annotation->min);
+                $property->setMaximum($annotation->max);
+            } elseif ($annotation instanceof Assert\LessThan) {
+                $property->setExclusiveMaximum($annotation->value);
+            } elseif ($annotation instanceof Assert\LessThanOrEqual) {
+                $property->setMaximum($annotation->value);
             }
         }
     }

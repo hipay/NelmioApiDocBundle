@@ -13,6 +13,7 @@ namespace Nelmio\ApiDocBundle\Tests\Functional\Controller;
 
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\RequestParam;
+use Nelmio\ApiDocBundle\Annotation\Areas;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Operation;
 use Nelmio\ApiDocBundle\Annotation\Security;
@@ -90,7 +91,7 @@ class ApiController
      *     name="foo",
      *     in="body",
      *     description="This is a parameter",
-     *     @SWG\Schema(ref=@Model(type=UserType::class))
+     *     @SWG\Schema(ref=@Model(type=UserType::class, options={"bar": "baz"}))
      * )
      */
     public function submitUserTypeAction()
@@ -191,6 +192,10 @@ class ApiController
      *     description="Success",
      *     @SWG\Schema(ref="#/definitions/Test")
      * )
+     * @SWG\Response(
+     *     response="201",
+     *     ref="#/responses/201"
+     * )
      * @Route("/configReference", methods={"GET"})
      */
     public function configReferenceAction()
@@ -205,6 +210,15 @@ class ApiController
      * @SWG\Response(response=200, description="Worked well!", @Model(type=DummyType::class))
      */
     public function operationsWithOtherAnnotations()
+    {
+    }
+
+    /**
+     * @Route("/areas/new", methods={"GET", "POST"})
+     *
+     * @Areas({"area", "area2"})
+     */
+    public function newAreaAction()
     {
     }
 }

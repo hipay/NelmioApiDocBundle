@@ -12,7 +12,9 @@
 namespace Nelmio\ApiDocBundle\DependencyInjection;
 
 use FOS\RestBundle\Controller\Annotations\ParamInterface;
+use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use Nelmio\ApiDocBundle\ApiDocGenerator;
+use Nelmio\ApiDocBundle\Describer\ExternalDocDescriber;
 use Nelmio\ApiDocBundle\Describer\RouteDescriber;
 use Nelmio\ApiDocBundle\Describer\SwaggerPhpDescriber;
 use Nelmio\ApiDocBundle\ModelDescriber\BazingaHateoasModelDescriber;
@@ -64,26 +66,12 @@ final class NelmioApiDocExtension extends Extension implements PrependExtensionI
             $nameAliases = $this->findNameAliases($config['models']['names'], $area);
 
             $container->register(sprintf('nelmio_api_doc.generator.%s', $area), ApiDocGenerator::class)
-                ->setPublic(false)
+                ->setPublic(true)
                 ->addMethodCall('setAlternativeNames', [$nameAliases])
                 ->setArguments([
                     new TaggedIteratorArgument(sprintf('nelmio_api_doc.describer.%s', $area)),
                     new TaggedIteratorArgument('nelmio_api_doc.model_describer'),
                 ]);
-
-            if (0 === count($areaConfig['path_patterns']) && 0 === count($areaConfig['host_patterns'])) {
-                $container->setDefinition(sprintf('nelmio_api_doc.routes.%s', $area), $routesDefinition)
-                    ->setPublic(false);
-            } else {
-                $container->register(sprintf('nelmio_api_doc.routes.%s', $area), RouteCollection::class)
-                    ->setPublic(false)
-                    ->setFactory([
-                        (new Definition(FilteredRouteCollectionBuilder::class))
-                            ->addArgument($areaConfig),
-                        'filter',
-                    ])
-                    ->addArgument($routesDefinition);
-            }
 
             $container->register(sprintf('nelmio_api_doc.describers.route.%s', $area), RouteDescriber::class)
                 ->setPublic(false)
@@ -103,6 +91,40 @@ final class NelmioApiDocExtension extends Extension implements PrependExtensionI
                     new Reference('logger'),
                 ])
                 ->addTag(sprintf('nelmio_api_doc.describer.%s', $area), ['priority' => -200]);
+
+            $container->register(sprintf('nelmio_api_doc.describers.config.%s', $area), ExternalDocDescriber::class)
+                ->setPublic(false)
+                ->setArguments([
+                    $areaConfig['documentation'],
+                    true,
+                ])
+                ->addTag(sprintf('nelmio_api_doc.describer.%s', $area), ['priority' => 990]);
+
+            unset($areaConfig['documentation']);
+            if (0 === count($areaConfig['path_patterns'])
+                && 0 === count($areaConfig['host_patterns'])
+                && 0 === count($areaConfig['name_patterns'])
+                && false === $areaConfig['with_annotation']
+            ) {
+                $container->setDefinition(sprintf('nelmio_api_doc.routes.%s', $area), $routesDefinition)
+                    ->setPublic(false);
+            } else {
+                $container->register(sprintf('nelmio_api_doc.routes.%s', $area), RouteCollection::class)
+                    ->setPublic(false)
+                    ->setFactory([
+                        (new Definition(FilteredRouteCollectionBuilder::class))
+                            ->setArguments(
+                                [
+                                    new Reference('annotation_reader'),
+                                    new Reference('nelmio_api_doc.controller_reflector'),
+                                    $area,
+                                    $areaConfig,
+                                ]
+                            ),
+                        'filter',
+                    ])
+                    ->addArgument($routesDefinition);
+            }
         }
 
         $container->register('nelmio_api_doc.generator_locator')
@@ -131,11 +153,13 @@ final class NelmioApiDocExtension extends Extension implements PrependExtensionI
 
         // JMS metadata support
         if ($config['models']['use_jms']) {
+            $jmsNamingStrategy = interface_exists(SerializationVisitorInterface::class) ? null : new Reference('jms_serializer.naming_strategy');
+
             $container->register('nelmio_api_doc.model_describers.jms', JMSModelDescriber::class)
                 ->setPublic(false)
                 ->setArguments([
                     new Reference('jms_serializer.metadata_factory'),
-                    new Reference('jms_serializer.naming_strategy'),
+                    $jmsNamingStrategy,
                     new Reference('annotation_reader'),
                 ])
                 ->addTag('nelmio_api_doc.model_describer', ['priority' => 50]);
@@ -150,6 +174,8 @@ final class NelmioApiDocExtension extends Extension implements PrependExtensionI
                         new Reference('nelmio_api_doc.model_describers.jms.inner'),
                     ]);
             }
+        } else {
+            $container->removeDefinition('nelmio_api_doc.model_describers.object_fallback');
         }
 
         // Import the base configuration

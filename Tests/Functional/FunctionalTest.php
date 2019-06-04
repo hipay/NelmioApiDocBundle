@@ -12,14 +12,13 @@
 namespace Nelmio\ApiDocBundle\Tests\Functional;
 
 use EXSyst\Component\Swagger\Tag;
-use Nelmio\ApiDocBundle\Tests\Functional\Form\DummyEmptyType;
-use Nelmio\ApiDocBundle\Tests\Functional\Form\DummyType;
 
 class FunctionalTest extends WebTestCase
 {
     public function testConfiguredDocumentation()
     {
-        $this->assertEquals('My Test App', $this->getSwaggerDefinition()->getInfo()->getTitle());
+        $this->assertEquals('My Default App', $this->getSwaggerDefinition()->getInfo()->getTitle());
+        $this->assertEquals('My Test App', $this->getSwaggerDefinition('test')->getInfo()->getTitle());
     }
 
     public function testUndocumentedAction()
@@ -221,6 +220,10 @@ class FunctionalTest extends WebTestCase
                         'type' => 'string',
                         'enum' => ['disabled', 'enabled'],
                     ],
+                    'dateAsInterface' => [
+                        'type' => 'string',
+                        'format' => 'date-time',
+                    ],
                 ],
             ],
             $this->getModel('User')->toArray()
@@ -271,6 +274,8 @@ class FunctionalTest extends WebTestCase
                     'type' => 'string',
                     'enum' => ['foo', 'bar'],
                 ],
+                'save' => [
+                ],
             ],
             'required' => ['dummy', 'dummies', 'entity', 'entities', 'document', 'documents', 'extended_builtin'],
         ], $this->getModel('UserType')->toArray());
@@ -284,6 +289,10 @@ class FunctionalTest extends WebTestCase
                 'foo' => [
                     'type' => 'string',
                     'enum' => ['male', 'female'],
+                ],
+                'boo' => [
+                    'type' => 'boolean',
+                    'enum' => [true, false],
                 ],
                 'foz' => [
                     'type' => 'array',
@@ -374,9 +383,26 @@ class FunctionalTest extends WebTestCase
                     'type' => 'integer',
                     'enum' => ['choice1', 'choice2'],
                 ],
+                'propertyChoiceWithCallbackWithoutClass' => [
+                    'type' => 'integer',
+                    'enum' => ['choice1', 'choice2'],
+                ],
                 'propertyExpression' => [
                     'type' => 'integer',
                     'pattern' => 'If this is a tech post, the category should be either php or symfony!',
+                ],
+                'propertyRange' => [
+                    'type' => 'integer',
+                    'maximum' => 5,
+                    'minimum' => 1,
+                ],
+                'propertyLessThan' => [
+                    'type' => 'integer',
+                    'exclusiveMaximum' => 42,
+                ],
+                'propertyLessThanOrEqual' => [
+                    'type' => 'integer',
+                    'maximum' => 23,
                 ],
             ],
             'type' => 'object',
@@ -387,6 +413,7 @@ class FunctionalTest extends WebTestCase
     {
         $operation = $this->getOperation('/api/configReference', 'get');
         $this->assertEquals('#/definitions/Test', $operation->getResponses()->get('200')->getSchema()->getRef());
+        $this->assertEquals('#/responses/201', $operation->getResponses()->get('201')->getRef());
     }
 
     public function testOperationsWithOtherAnnotationsAction()

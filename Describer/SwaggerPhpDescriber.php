@@ -87,6 +87,9 @@ final class SwaggerPhpDescriber implements ModelRegistryAwareInterface
                 if (0 === strpos($ref, '#/parameters/') && isset($this->api->getParameters()[substr($ref, 13)])) {
                     return;
                 }
+                if (0 === strpos($ref, '#/responses/') && $this->api->getResponses()->has(substr($ref, 12))) {
+                    return;
+                }
 
                 parent::ref($ref);
             }
@@ -178,7 +181,7 @@ final class SwaggerPhpDescriber implements ModelRegistryAwareInterface
                 }
 
                 if (!$annotation instanceof SWG\Response && !$annotation instanceof SWG\Parameter && !$annotation instanceof SWG\ExternalDocumentation) {
-                    throw new \LogicException(sprintf('Using the annotation "%s" as a root annotation in "%s::%s()" is not allowed.', get_class($annotation), $method->getDeclaringClass()->name, $method->name));
+                    throw new \LogicException(sprintf('Using the annotation "%s" as a root annotation in "%s::%s()" is not allowed. It should probably be nested in a `@SWG\Response` or `@SWG\Parameter` annotation.', get_class($annotation), $method->getDeclaringClass()->name, $method->name));
                 }
 
                 $implicitAnnotations[] = $annotation;

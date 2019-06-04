@@ -18,7 +18,7 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @Serializer\ExclusionPolicy("all")
  */
-class JMSChatUser
+class JMSChatRoomUser
 {
     /**
      * @Serializer\Type("integer")
@@ -27,15 +27,9 @@ class JMSChatUser
     private $id;
 
     /**
-     * @Serializer\Type("Nelmio\ApiDocBundle\Tests\Functional\Entity\NestedGroup\JMSPicture")
+     * @Serializer\Type("Nelmio\ApiDocBundle\Tests\Functional\Entity\NestedGroup\JMSChatFriend")
+     * @Serializer\Expose
      * @Serializer\Groups({"mini"})
-     * @Serializer\Expose
      */
-    private $picture;
-
-    /**
-     * @Serializer\Type("array<Nelmio\ApiDocBundle\Tests\Functional\Entity\NestedGroup\JMSPicture>")
-     * @Serializer\Expose
-     */
-    private $allPictures;
+    private $friend;
 }

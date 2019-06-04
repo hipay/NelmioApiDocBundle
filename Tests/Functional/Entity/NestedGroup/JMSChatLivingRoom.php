@@ -18,24 +18,11 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @Serializer\ExclusionPolicy("all")
  */
-class JMSChatUser
+class JMSChatLivingRoom
 {
     /**
      * @Serializer\Type("integer")
      * @Serializer\Expose
      */
     private $id;
-
-    /**
-     * @Serializer\Type("Nelmio\ApiDocBundle\Tests\Functional\Entity\NestedGroup\JMSPicture")
-     * @Serializer\Groups({"mini"})
-     * @Serializer\Expose
-     */
-    private $picture;
-
-    /**
-     * @Serializer\Type("array<Nelmio\ApiDocBundle\Tests\Functional\Entity\NestedGroup\JMSPicture>")
-     * @Serializer\Expose
-     */
-    private $allPictures;
 }
