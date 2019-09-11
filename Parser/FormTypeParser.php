@@ -335,8 +335,8 @@ class FormTypeParser implements ParserInterface
                 $attr = $config->getOption('attr');
                 foreach($attr as $attr_name => $attr_value) {
                     if(preg_match("/^x-\w+/", $attr_name)) {
-                        if(preg_match("/^\d+$/", $attr_value)) {
-                            $attr_value = floatval($attr_value);
+                        if(preg_match("/^\-?\d+([\.\,]\d+)?$/", $attr_value)) {
+                            $attr_value = floatval(preg_replace("/\,/", ".", $attr_value));
                         }
                         $parameters[$name][$attr_name] = $attr_value;
                     }

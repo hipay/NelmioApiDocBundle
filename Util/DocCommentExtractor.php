@@ -66,8 +66,8 @@ class DocCommentExtractor
             foreach($arr as $el) {
                 $info = explode('=', $el);
                 $value = trim(preg_replace('/"/', '', $info[1]));
-                if(preg_match("/^\d+$/", $value)) {
-                    $value = floatval($value);
+                if(preg_match("/^\-?\d+([\.\,]\d+)?$/", $value)) {
+                    $value = floatval(preg_replace("/\,/", ".", $value));
                 }
                 $extract["x-".str_replace('"', '', trim($info[0]))] = $value;
             }
